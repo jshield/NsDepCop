@@ -85,6 +85,8 @@ namespace Codartis.NsDepCop.SourceTest
             {
                 // mscorlib
                 Assembly.Load("System.Runtime").Location,
+                GetAssemblyPath(typeof(System.Object).Assembly),
+                GetAssemblyPath(typeof(System.Decimal).Assembly),
                 // rewrite to use assembly loader mechanism for .net core?
                 GetAssemblyPath(typeof(FileInfo).Assembly),
                 GetAssemblyPath(typeof(System.Console).Assembly)

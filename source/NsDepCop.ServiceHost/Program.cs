@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Collections;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+#if NETFRAMEWORK
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Ipc;
 using System.Security.Principal;
+#endif
 using Codartis.NsDepCop.Core.Interface;
-using Codartis.NsDepCop.Core.Interface.Analysis.Remote;
+
 
 namespace Codartis.NsDepCop.ServiceHost
 {
@@ -43,21 +44,31 @@ namespace Codartis.NsDepCop.ServiceHost
             catch (Exception e)
             {
                 Trace.WriteLine($"[{ProductConstants.ToolName}] ServiceHost exception caught: {e}");
-                Console.WriteLine($"Exception caught: {e}");
+                Console.Error.WriteLine($"Exception caught: {e}");
                 return -2;
             }
         }
 
+
         private static void RegisterRemotingService()
         {
+#if NETCOREAPP
+            
+            //var server = new DependencyAnalyzerService<RemoteDependencyAnalyzerServer>(new TextReaderWriterConnection(Console.In, Console.Out));
+            //server.Start();
+            
+#elif NETFRAMEWORK
             ChannelServices.RegisterChannel(CreateIpcChannel(ServiceAddressProvider.PipeName), false);
 
             RemotingConfiguration.RegisterWellKnownServiceType(
                 typeof(RemoteDependencyAnalyzerServer),
                 ServiceAddressProvider.ServiceName, 
                 WellKnownObjectMode.SingleCall);
+#endif
         }
 
+#if NETFRAMEWORK
+        
         private static IpcChannel CreateIpcChannel(string portName)
         {
             var everyoneAccountName = GetAccountNameForSid(WellKnownSidType.WorldSid);
@@ -78,6 +89,8 @@ namespace Codartis.NsDepCop.ServiceHost
             return account.ToString();
         }
 
+#endif
+
         private static void WaitForParentProcessExit(int parentProcessId)
         {
             var parentProcess = Process.GetProcesses().FirstOrDefault(i => i.Id == parentProcessId);
@@ -86,7 +99,7 @@ namespace Codartis.NsDepCop.ServiceHost
 
         private static void Usage()
         {
-            Console.WriteLine($"Usage: {Assembly.GetExecutingAssembly().GetName().Name} <parentprocessid>");
+            Console.Error.WriteLine($"Usage: {Assembly.GetExecutingAssembly().GetName().Name} <parentprocessid>");
         }
     }
 }

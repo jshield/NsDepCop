@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Codartis.NsDepCop.Core.Factory;
 using Codartis.NsDepCop.Core.Interface.Analysis;
 using Codartis.NsDepCop.Core.Interface.Analysis.Messages;
@@ -83,7 +84,10 @@ namespace Codartis.NsDepCop.SourceTest
             return new[]
             {
                 // mscorlib
-                GetAssemblyPath(typeof(object).Assembly),
+                Assembly.Load("System.Runtime").Location,
+                // rewrite to use assembly loader mechanism for .net core?
+                GetAssemblyPath(typeof(FileInfo).Assembly),
+                GetAssemblyPath(typeof(System.Console).Assembly)
             };
         }
     }

@@ -12,7 +12,7 @@ namespace Codartis.NsDepCop.Core.Implementation.Analysis.Remote
     /// </summary>
     public static class AnalyzerServiceActivator
     {
-        public static void Activate(MessageHandler traceMessageHandler)
+        public static void /* IConnection */ Activate(MessageHandler traceMessageHandler)
         {
             var workingFolder = Assembly.GetExecutingAssembly().GetDirectory();
             var serviceExePath = Path.Combine(workingFolder, ServiceAddressProvider.ServiceHostProcessName + ".exe");
@@ -22,7 +22,7 @@ namespace Codartis.NsDepCop.Core.Implementation.Analysis.Remote
 
         private static string GetProcessId() => Process.GetCurrentProcess().Id.ToString();
 
-        private static void CreateServer(string workingFolderPath, string serviceExePath, string arguments, MessageHandler traceMessageHandler)
+        private static void /* IConnection */ CreateServer(string workingFolderPath, string serviceExePath, string arguments, MessageHandler traceMessageHandler)
         {
             traceMessageHandler?.Invoke($"Starting {serviceExePath} with parameter {arguments}");
             traceMessageHandler?.Invoke($"  Working folder is {workingFolderPath}");
@@ -31,18 +31,24 @@ namespace Codartis.NsDepCop.Core.Implementation.Analysis.Remote
             {
                 var processStartInfo = new ProcessStartInfo
                 {
-                    FileName = serviceExePath,
+                    FileName = "nsdepcop",
+                    //FileName = serviceExePath,
                     WorkingDirectory = workingFolderPath,
                     CreateNoWindow = true,
                     UseShellExecute = false,
                     Arguments = arguments,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
                 };
-                Process.Start(processStartInfo);
+                var process = Process.Start(processStartInfo);
+                //if (process != null) return new TextReaderWriterConnection(process.StandardOutput, process.StandardInput);
             }
             catch (Exception e)
             {
                 traceMessageHandler?.Invoke($"AnalyzerServiceActivator.CreateServer failed: {e}");
             }
+
+            // return null;
         }
     }
 }

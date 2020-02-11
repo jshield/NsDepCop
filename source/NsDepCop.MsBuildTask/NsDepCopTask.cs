@@ -1,15 +1,15 @@
-﻿using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Codartis.NsDepCop.Core.Factory;
 using Codartis.NsDepCop.Core.Interface;
 using Codartis.NsDepCop.Core.Interface.Analysis.Messages;
-using Codartis.NsDepCop.Core.Interface.Analysis.Remote;
 using Codartis.NsDepCop.Core.Interface.Config;
 using Codartis.NsDepCop.Core.Util;
+using Codartis.NsDepCop.ParserAdapter.Roslyn2x;
+using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 
 namespace Codartis.NsDepCop.MsBuildTask
 {
@@ -100,7 +100,9 @@ namespace Codartis.NsDepCop.MsBuildTask
 
                 var defaultInfoImportance = EnumHelper.ParseNullable<Importance>(InfoImportance.GetValue());
                 var analyzerFactory = new DependencyAnalyzerFactory(_logger.LogTraceMessage).SetDefaultInfoImportance(defaultInfoImportance);
-                var analyzer = analyzerFactory.CreateOutOfProcess(ProjectFolder, ServiceAddressProvider.ServiceAddress);
+                // Bypassing OutOfProcess 
+                var analyzer = analyzerFactory.CreateInProcess(ProjectFolder, new Roslyn2TypeDependencyEnumerator(_logger.LogTraceMessage));
+                //var analyzer = analyzerFactory.CreateOutOfProcess(ProjectFolder, ServiceAddressProvider.ServiceAddress);
                 var analyzerMessages = analyzer.AnalyzeProject(SourceFilePaths, ReferencedAssemblyPaths);
 
                 _logger.InfoImportance = analyzer.InfoImportance.ToMessageImportance();

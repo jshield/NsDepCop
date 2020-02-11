@@ -13,4 +13,8 @@
     <Allowed From="Codartis.NsDepCop.Core.Factory" To="Codartis.NsDepCop.Core.Implementation.*"/>
 
     <Allowed From="Codartis.NsDepCop.Core.*" To="DotNet.Globbing" />
+    
+    <Allowed From="Codartis.NsDepCop.Core.Implementation.Analysis.Remote.*" To="Daedulus.Connectivity.*"/>
+    
+    <Allowed From="Daedulus.Connectivity.*" To="Newtonsoft.Json.*"/>
 </NsDepCopConfig>

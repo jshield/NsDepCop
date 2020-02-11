@@ -1,0 +1,4 @@
+﻿<!-- buildMultiTargeting/NsDepCop.props -->
+<Project>
+    <Import Project="..\build\NsDepCop.targets" />
+</Project>

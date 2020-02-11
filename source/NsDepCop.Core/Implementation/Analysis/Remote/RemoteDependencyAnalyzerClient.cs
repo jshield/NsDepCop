@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Codartis.NsDepCop.Core.Interface.Analysis;
 using Codartis.NsDepCop.Core.Interface.Analysis.Messages;
@@ -21,6 +20,7 @@ namespace Codartis.NsDepCop.Core.Implementation.Analysis.Remote
         private const string CommunicationErrorMessage = "Unable to communicate with NsDepCop service.";
 
         private readonly string _serviceAddress;
+        // private IConnection _connection;
 
         public RemoteDependencyAnalyzerClient(IUpdateableConfigProvider configProvider, string serviceAddress, MessageHandler traceMessageHandler)
             : base(configProvider, traceMessageHandler)
@@ -64,12 +64,17 @@ namespace Codartis.NsDepCop.Core.Implementation.Analysis.Remote
         {
             TraceMessageHandler?.Invoke("Calling analyzer service.");
 
-            var proxy = (IRemoteDependencyAnalyzer) Activator.GetObject(typeof(IRemoteDependencyAnalyzer), _serviceAddress);
-            var result = proxy.AnalyzeProject(ConfigProvider.Config, sourceFilePaths.ToArray(), referencedAssemblyPaths.ToArray());
-
+//#if NETSTANDARD
+            throw new NotImplementedException();
+            //var proxy = new RemoteDependencyAnalyzerProxy(_connection);
+//#else
+            // var proxy = (IRemoteDependencyAnalyzer) Activator.GetObject(typeof(IRemoteDependencyAnalyzer), _serviceAddress);
+//#endif
+            //var result = proxy.AnalyzeProject(ConfigProvider.Config, sourceFilePaths.ToArray(), referencedAssemblyPaths.ToArray());
+            
             TraceMessageHandler?.Invoke("Calling analyzer service succeeded.");
 
-            return result;
+            return null; // result;
         }
 
         private void ActivateServerAndWaitBeforeRetry(Exception e, int retryCount, TimeSpan[] retryTimeSpans)
@@ -77,7 +82,7 @@ namespace Codartis.NsDepCop.Core.Implementation.Analysis.Remote
             TraceMessageHandler?.Invoke($"{CommunicationErrorMessage} Exception: {e.Message}");
 
             TraceMessageHandler?.Invoke($"Trying to activate analyzer service (attempt #{retryCount + 1}).");
-            AnalyzerServiceActivator.Activate(TraceMessageHandler);
+            /*_connection = */AnalyzerServiceActivator.Activate(TraceMessageHandler);
 
             var sleepTimeSpan = retryTimeSpans[retryCount];
             TraceMessageHandler?.Invoke($"Retrying service call after: {sleepTimeSpan}.");
